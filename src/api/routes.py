@@ -87,7 +87,7 @@ def get_token_login():
         hashed_password_hex = password_from_db
         hashed_password_bin = bytes.fromhex(hashed_password_hex[2:])
 
-        true_o_false = check_password_hash(hashed_password_bin, password)
+        true_or_false = check_password_hash(hashed_password_bin, password)
         
         if true_or_false:
             expires = timedelta(days=1)
