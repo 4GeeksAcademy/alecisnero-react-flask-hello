@@ -32,10 +32,11 @@ def handle_hello():
 def get_users():
     try:
         #aqui obtenemos mediante el body los siguientes campos...
+        fullname = request.json.get('fullname')
         email = request.json.get('email')
         password = request.json.get('password')
         username = request.json.get('username')
-        fullname = request.json.get('fullname')
+        
 
         #aqui verificamos si los campos esta vacios o tienes caracteres invalidos
         if not email or not password or not username or not fullname:
@@ -50,14 +51,14 @@ def get_users():
         password_hash = generate_password_hash(password)
 
         #new user con password encrptada
-        new_user = User(email=email, password=password_hash, username=username, is_active=True, fullname=fullname)
+        new_user = User(fullname=fullname, email=email, password=password_hash, username=username,is_active=True)
         db.session.add(new_user)
         db.session.commit()
 
         ok_to_share = {
+            "fullname": new_user.fullname,
             "email": new_user.email,
             "username": new_user.username,
-            "fullname": new_user.fullname,
             "id": new_user.id
         }
         return jsonify({"msg":"User created successfully", "user_create": new_user.serialize()}), 201
@@ -100,7 +101,7 @@ def get_token_login():
         return jsonify({"error": "Error in user:" + str(e)}), 500
 
 
-@api.route('/private', methods=['POST'])
+@api.route('/private')
 @jwt_required() #Decorador para requerir autenticacion con jwt
 def show_user():
     current_user_id = get_jwt_identity() #obtiene la id del user del token

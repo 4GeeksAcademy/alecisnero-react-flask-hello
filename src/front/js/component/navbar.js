@@ -13,6 +13,19 @@ export const Navbar = () => {
 						<button className="btn btn-primary">Check the Context in action</button>
 					</Link>
 				</div>
+				<div>
+					<Link to="/RegisterLogin">
+						<button>
+							Register
+						</button>
+					</Link>
+			
+					<Link to="/LoginIn">
+						<button>
+							Login In
+						</button>
+					</Link>
+				</div>
 			</div>
 		</nav>
 	);
