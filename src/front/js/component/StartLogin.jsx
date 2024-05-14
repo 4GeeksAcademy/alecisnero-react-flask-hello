@@ -1,74 +1,100 @@
-import React, {useState, useEffect, useContext} from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Context } from '../store/appContext'
+import React, { useState, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Context } from '../store/appContext';
 
 export const StartLogin = () => {
-    const { store, actions } = useContext(Context)
-    const [formLoginIn, setFormLoginIn] = useState(
-        {
-           email: '',
-           password: '' 
-        }
-    )
+    const { store, actions } = useContext(Context);
+    const [formLoginIn, setFormLoginIn] = useState({
+        email: '',
+        password: ''/* ,
+        isActive: false, // Inicializamos isActive como false
+        isActive2: false */
+    });
 
-    function handlerChangeLoginIn(eve){
-        eve.preventDefault()
-        const {name, value} = eve.target
+    function handlerChangeLoginIn(eve) {
+        const { name, value, type, checked } = eve.target;
 
-        setFormLoginIn(
-            prev =>({ 
-                ...prev,
-            [name]: value
-        }))
+        // Si es un checkbox, actualizamos con el valor checked
+        const newValue = type === 'checkbox' ? checked : value;
+
+        setFormLoginIn(prev => ({
+            ...prev,
+            [name]: newValue
+        }));
     }
 
-    function handlerLoginIn(eve){
-        eve.preventDefault()
-        if(formLoginIn.email !== '' && formLoginIn.password !== ''){
+    function handlerLoginIn(eve) {
+        eve.preventDefault();
+        if (formLoginIn.email !== '' && formLoginIn.password !== '') {
             actions.loginIn(formLoginIn)
-            
         }
     }
 
-    return(
+    console.log(formLoginIn);
+
+    return (
         <div>
-            <h1>Iniciar Seccion</h1>
+            <h1>Iniciar Sesión</h1>
 
-            <div>
-                <form onSubmit={handlerLoginIn}>
-                    <input
+            <form onSubmit={handlerLoginIn}>
+                <input
                     name='email'
-                    value={formLoginIn.email} 
+                    value={formLoginIn.email}
                     onChange={handlerChangeLoginIn}
-                    type="text" 
+                    type="text"
                     placeholder='Ingrese email'
-                    />
+                />
 
+                <input
+                    name='password'
+                    value={formLoginIn.password}
+                    onChange={handlerChangeLoginIn}
+                    type='password'
+                    placeholder='Ingrese password'
+                />
+
+                {/* <div className="form-check">
                     <input
-                        name='password'
-                        value={formLoginIn.password}
+                        className="form-check-input"
+                        type="checkbox"
+                        name="isActive"
+                        checked={formLoginIn.isActive}
                         onChange={handlerChangeLoginIn}
-                        type='password'
-                        placeholder='ingrese password'  
                     />
-                </form>
+                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                        User
+                    </label>
+                </div>
 
-                <button onClick={handlerLoginIn}>
+                <div className="form-check">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        name="isActive"
+                        checked={formLoginIn.isActive2}
+                        onChange={handlerChangeLoginIn}
+                    />
+                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                        teacher
+                    </label>
+                </div> */}
+
+                <button type="submit" onClick={handlerLoginIn}>
                     Login In
                 </button>
-
-                <button onClick={() => actions.getUser()}>
-                    get user
-                </button>
-                
-            </div>
+            </form>
 
             <div>
                 {
-                    'mapeo de los users'
+                    store.user.map((item, index)=>{
+                        return(
+                            <div key={index}>
+                                <p>{item.email}</p>
+                            </div>
+                        )
+                    })
                 }
             </div>
-            
         </div>
-    )
-}
+    );
+};

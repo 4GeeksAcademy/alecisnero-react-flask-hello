@@ -29,7 +29,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 @api.route('/signup', methods=['POST'])
-def get_users():
+def create_user():
     try:
         #aqui obtenemos mediante el body los siguientes campos...
         fullname = request.json.get('fullname')
@@ -51,16 +51,18 @@ def get_users():
         password_hash = generate_password_hash(password)
 
         #new user con password encrptada
-        new_user = User(fullname=fullname, email=email, password=password_hash, username=username,is_active=True)
+        new_user = User(fullname=fullname, email=email, password=password_hash, username=username, is_active=True)
         db.session.add(new_user)
         db.session.commit()
 
-        ok_to_share = {
+        """ ok_to_share = {
             "fullname": new_user.fullname,
             "email": new_user.email,
             "username": new_user.username,
             "id": new_user.id
-        }
+        } """
+
+        
         return jsonify({"msg":"User created successfully", "user_create": new_user.serialize()}), 201
     except Exception as e:
         return jsonify({"error": "Error in user creation:" + str(e)}), 500

@@ -1,92 +1,82 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			token: '',
+			user: [],
 
 
 			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			
 		},
 		actions: {
 
-			createUser: async (formUserSignup) =>{
-				try{
+			createUser: async (formUserSignup) => {
+				try {
 					const respCreateUser = await fetch(process.env.BACKEND_URL + "/api/signup", {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify(formUserSignup)
-					} )
-
-					if(!respCreateUser){
-						throw new Error('se genero el siguiente error')
+					});
+			
+					if (!respCreateUser.ok) {
+						throw new Error('Error al crear el usuario: ' + respCreateUser.statusText);
 					}
-
-					const dataCreateUser = await respCreateUser.json()
-
-					console.log(formUserSignup)
-					console.log(dataCreateUser)
-					
+			
+					const dataCreateUser = await respCreateUser.json();
+			
+					console.log("Usuario creado:", formUserSignup);
+					console.log("Respuesta del servidor:", dataCreateUser);
+				} catch (error) {
+					console.error("Error al crear el usuario:", error);
 				}
-				catch(error){
-					console.error("Error presentado:", error)
-				}	
 			},
-
+			
 			loginIn: async (formLoginIn) => {
-				const storeLogin = getStore() 
-				try{
+				try {
 					const respLoginIn = await fetch(process.env.BACKEND_URL + "/api/login", {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify(formLoginIn)
-					})
-
-					if(!respLoginIn){
-						throw new Error('New error generado')
+					});
+			
+					if (!respLoginIn.ok) {
+						throw new Error('Error al iniciar sesión: ' + respLoginIn.statusText);
 					}
-
-					const dataLoginIn = await respLoginIn.json()
-					setStore( {token: dataLoginIn.access_token} )
-					console.log(storeLogin.token)
-
-				}catch(error){
-					console.error('Se ha presentado un error: ', error)
+			
+					const dataLoginIn = await respLoginIn.json();
+					localStorage.setItem("jwt-token", dataLoginIn.access_token)
+					await getActions().getUser();
+					
+			
+				} catch (error) {
+					console.error('Error al iniciar sesión: ', error)
 				}
 			},
-
-			getUser: async() => {
-				const storeUser = getStore()
-				try{
-					
-
+			
+			getUser: async () => {
+				const store = getStore()
+				try {
+					const token = localStorage.getItem('jwt-token')
 					const respGetUsers = await fetch(process.env.BACKEND_URL + "/api/private", {
 						method: 'GET',
 						headers: {
-							'Content-type':'application/json',
-							'Authorization': 'Bearer ' + storeUser.token
+							'Content-type': 'application/json',
+							'Authorization': 'Bearer ' + token
 						}
-					})
-
-					const dataGetUser = await respGetUsers.json()
-					console.log(dataGetUser)
-
-				}catch(error){
-					console.error('Se ha presentado el siguiente error: ', error)
+					});
+			
+					if (!respGetUsers.ok) {
+						throw new Error('Error al obtener los datos del usuario: ' + respGetUsers.statusText);
+					}
+			
+					const dataGetUser = await respGetUsers.json();
+					setStore({...store, user: dataGetUser})
+					console.log(store.user)
+				} catch (error) {
+					console.error('Error al obtener los datos del usuario: ', error);
 				}
 			},
 
