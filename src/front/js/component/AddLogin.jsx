@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Context } from '../store/appContext'
-
+import { Message } from './Message.jsx'
 import { FaCircleArrowLeft } from "react-icons/fa6";
 
 export const AddLogin = () => {
     const { store, actions } = useContext(Context)
+    const [selectedRole, setSelectedRole] = useState('');
+    const [counter, setCounter] = useState(7);
+    const [redirectPath, setRedirectPath] = useState('');
     const [formLogin, setFormLogin] = useState(
         {
             email: '',
@@ -37,19 +40,57 @@ export const AddLogin = () => {
             formLogin.name !== ''
         ) {
             actions.createUser(formLogin)
+            setCounter(0);
         } else {
             alert('No deje dejar campo vacios')
         }
 
         /**console.log(formLogin)**/
     }
+    
+    
 
-    function handlerHome() {
-        navigate('/')
-    }
+    useEffect(() => {
+        if (redirectPath) {
+            navigate(redirectPath);
+        }
+    }, [redirectPath, navigate]);
+
+    useEffect(() => {
+        if (store.error === '' && selectedRole && counter === 7) {
+            setRedirectPath(`/LoginIn`);
+        }
+
+        const interval = setInterval(() => {
+            setCounter(prevCounter => prevCounter + 1);
+        }, 500);
+
+        return () => clearInterval(interval);
+    }, [store.error, selectedRole, counter]);
+
+
+    
+
+    const handlerGoToLogIn = () => {
+        navigate('/LogIn');
+    };
+
+    const handlerHome = () => {
+        navigate('/');
+    };
+
+    
+    
+
+    const msgError = typeof store.error === 'string' ? store.error : JSON.stringify(store.error);
+    const msg = typeof store.msg === 'string' ? store.msg : JSON.stringify(store.msg);
+
 
     return (
-        <div>
+        <div className='position-relative'>
+            {/* Mostrar mensaje de éxito o error */}
+            {msgError && <Message type="danger" text={msgError} />}
+            {msg && <Message type="success" text={msg} />}
 
             <div>
                 <form className=" container mx-auto mt-5 row g-3 needs-validation" onSubmit={handlerAddLoginUser} >
